@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>ניהול נקודות שמירה</title>
+    <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+<h1>ניהול נקודות שמירה</h1>
+
+<form id="addPointForm">
+    <input type="text" name="pointName" placeholder="שם נקודת השמירה" required>
+    <input type="text" name="location" placeholder="מיקום" required>
+    <button type="submit">הוסף נקודת שמירה</button>
+</form>
+
+<h2>רשימת נקודות השמירה</h2>
+<table>
+    <thead>
+    <tr>
+        <th>שם נקודת שמירה</th>
+        <th>מיקום</th>
+        <th>פעולות</th>
+    </tr>
+    </thead>
+    <tbody id="pointsTable">
+    </tbody>
+</table>
+
+
+</body>
+</html>
