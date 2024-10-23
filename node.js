@@ -39,6 +39,16 @@ let points = [
 app.get('/points', (req, res) => {
     res.status(200).json(points);
 });
+// הוספת נקודות שמירה התחלתית לבסיס הנתונים
+const sql = 'INSERT INTO points (id, pointName, location) VALUES ?';
+const values = points.map(point => [point.id, point.pointName, point.location]);
+connection.query(sql, [values], (error, results) => {
+    if (error) {
+        console.error("Error occurred while inserting points!");
+    } else {
+        console.log('Insert successful:', results);
+    }
+});
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
