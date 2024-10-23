@@ -49,6 +49,35 @@ connection.query(sql, [values], (error, results) => {
         console.log('Insert successful:', results);
     }
 });
+
+// הוספת נקודת שמירה (CREATE)
+app.post('/points', (req, res) => {
+    let newPoint = { pointName: req.body.pointName, location: req.body.location };
+
+    const sql = 'SELECT MAX(id) AS max_id FROM points';
+    connection.query(sql, (error, results) => {
+        if (error) {
+            console.error("Error occurred while counting rows:", error);
+        } else {
+            console.log('Total rows in points table:', results[0].max_id);
+            pointId = results[0].max_id + 1;
+            newPoint.id = pointId; // הוספת ID חדש לנקודת השמירה
+            const insertQuery = 'INSERT INTO points (id,pointName, location) VALUES (?, ?, ?)';
+            const userData = [pointId,req.body.pointName, req.body.location];
+
+            connection.query(insertQuery, userData, (err, results) => {
+                if (err) {
+                    console.error('Error executing query:', err.message);
+                    res.status(400).json("שגיאה בהוספת נקודת השמירה");
+                } else {
+                    console.log('Data inserted successfully, ID:', results.insertId);
+                    res.status(200).json("נקודת השמירה נוספה בהצלחה");
+                }
+            });
+        }
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
