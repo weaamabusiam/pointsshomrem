@@ -77,6 +77,35 @@ app.post('/points', (req, res) => {
         }
     });
 });
+// הצגת כל נקודות השמירה (READ)
+app.get('/points', (req, res) => {
+    const selectVisitQuery = 'SELECT * from points';
+    connection.query(selectVisitQuery, (err,results,fields) => {
+        if (err) {
+            console.error('Error executing query:', err.message);
+            return res.status(400).json("שגיאה בהוספת הביקור");
+        } else {
+            // הוספת הביקור למערך המקומי
+            console.log("Visit loaded from db", results);
+            return res.status(200).json(results);
+        }
+    });
+});
+
+// עדכון נקודת שמירה לפי אינדקס (UPDATE)
+app.patch('/points/:id', (req, res) => {
+    const updateQuery = 'UPDATE points SET pointName = ?, location = ? WHERE id = ?';
+    const userData = [req.body.pointName, req.body.location, req.params.id];
+
+    connection.query(updateQuery, userData, (err, results) => {
+        if (err) {
+            console.error('Error executing query:', err.message);
+            res.status(400).json("שגיאה בעדכון נקודת השמירה");
+        } else {
+            res.status(200).json("נקודת השמירה עודכנה בהצלחה");
+        }
+    });
+});
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
