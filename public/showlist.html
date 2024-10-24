@@ -27,6 +27,76 @@
     </tbody>
 </table>
 
+<script>
 
+    async function GetPoints() {
+        try {
+
+            let response = await fetch("/points");
+            if (!response.ok) throw new Error("שגיאה בהחזרת נקודות השמירה");
+
+
+            let points = await response.json();
+            console.log(points);
+
+
+            let rows = points.map((point) =>
+                <tr>
+                    <td>${point.pointName}</td>
+                    <td>${point.location}</td>
+                    <td>
+                        <button onclick="editPoint(${point.id})">ערוך</button>
+                        <button onclick="deletePoint(${point.id})">מחק</button>
+                    </td>
+                </tr>
+            );
+
+            document.getElementById("pointsTable").innerHTML = rows.join('');
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+    document.getElementById("addPointForm").addEventListener("submit", async function(event) {
+        event.preventDefault(); // מניעת רענון דף
+        const formData = new FormData(this); // איסוף הנתונים מהטופס
+
+
+        await fetch("/points", {
+            method: "POST",
+            body: new URLSearchParams(formData)
+        });
+
+        await GetPoints();
+    });
+
+
+    async function deletePoint(id) {
+        await fetch(`/points/${id}`, {
+            method: "DELETE"
+        });
+        await GetPoints();
+    }
+
+
+    async function editPoint(id) {
+        const newName = prompt("הכנס שם חדש:", ""); // בקשת שם חדש מהמשתמש
+        const newLocation = prompt("הכנס מיקום חדש:", ""); // בקשת מיקום חדש
+
+
+        await fetch(`/points/${id}`, {
+            method: "PATCH",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ pointName: newName, location: newLocation })
+        });
+
+        await GetPoints();
+    }
+
+    GetPoints();
+</script>
 </body>
 </html>
