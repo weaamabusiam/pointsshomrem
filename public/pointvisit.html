@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>הזנת ביקור בנקודת שמירה</title>
+    <link rel="stylesheet" href="/main.css"> <!-- קישור לקובץ ה-CSS -->
+</head>
+<body>
+<h1>הזנת ביקור בנקודת שמירה</h1>
+
+<form id="visitForm">
+    <select name="point_id" id="points_select"></select>
+    <button type="submit">שמור ביקור</button>
+</form>
+
+<h2>רשימת הביקורים</h2>
+<table>
+    <thead>
+    <tr>
+        <th>נקודת שמירה</th>
+        <th>זמן ביקור</th>
+    </tr>
+    </thead>
+    <tbody id="visitTable"></tbody>
+</table>
+
+<script>
+    // פונקציה לטעינת הנקודות
+    async function GetPoints() {
+        let response = await fetch("/points");
+        let points = await response.json();
+        let options = points.map(point => `<option value="${point.id}">${point.pointName} - ${point.location}</option>`);
+        document.getElementById("points_select").innerHTML = options.join('');
+    }
+
+    // מאזין לאירוע של שליחת הטופס
+    document.getElementById("visitForm").addEventListener("submit",async function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const pointId = formData.get("point_id");
+        const pointName = document.querySelector(`#points_select option[value="${pointId}"]`).textContent;
+        const newVisit = { pointName: pointName, visitTime: new Date() };
+        await fetch("/visit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newVisit)
+        });
+
+        await LoadVisits();
+    });
+    async function LoadVisits() {
+        const response =  await fetch("/visits", {
+            method: "GET"
+        });
+        const data = await response.json();
+        console.log(data)
+        let storedVisits = data || [];
+        let tableContent = '';
+        for (let visit of storedVisits) {
+            tableContent += `<tr>
+                          <td>${visit.pointName}</td>
+                          <td>${visit.time}</td>
+                        </tr>`;
+        }
+        document.getElementById("visitTable").innerHTML = tableContent; // עדכון הטבלה
+    }
+
+    GetPoints();
+    LoadVisits();
+</script>
+</body>
+</html>
