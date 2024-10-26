@@ -1,0 +1,29 @@
+body {
+    direction: rtl;
+    background-color: #f5f5f5;
+    font-family: Arial, sans-serif;
+}
+
+form {
+    margin-bottom: 20px;
+    background-color: #e0f7fa;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+td, th {
+    border: 1px solid #ccc;
+    padding: 8px;
+    background-color: #ffffff;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fafafa;
+}
+
+table th {
+    background-color: #4CAF50;
+    color: white;
+}
