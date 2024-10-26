@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>רשימת ביקורים</title>
+    <link rel="stylesheet" href="/main.css"> <!-- קישור לקובץ ה-CSS -->
+</head>
+<body>
+<h1>רשימת הביקורים</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>נקודת שמירה</th>
+        <th>זמן ביקור</th>
+    </tr>
+    </thead>
+    <tbody id="visitTable"></tbody>
+</table>
+
+<script>
+    async function LoadVisits() {
+        const response =  await fetch("/visits", {
+            method: "GET"
+        });
+        const data = await response.json();
+        let storedVisits = data || [];
+        let tableContent = '';
+        for (let visit of storedVisits) {
+            tableContent += `<tr>
+                          <td>${visit.pointName}</td>
+                          <td>${visit.time}</td>
+                        </tr>`;
+        }
+        document.getElementById("visitTable").innerHTML = tableContent; // עדכון הטבלה
+    }
+
+    LoadVisits();
+</script>
+</body>
+</html>
