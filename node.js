@@ -1,13 +1,11 @@
 const port = 4329;
 const express = require('express');
 const app = express();
-
 const bodyParser = require('body-parser');
 const path = require('path');
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
-
 
 
 // אתחול חיבור מסד נתונים
@@ -18,6 +16,7 @@ const connection = mysql.createConnection({
     password: '',
     database: 'homework_weaam'
 });
+
 
 // חיבור למסד הנתונים
 connection.connect((err) => {
@@ -36,9 +35,6 @@ let points = [
     { id: 5, pointName: "שער ראשי", location: "מזרח" },
     { id: 6, pointName: "חניון אורחים", location: "מערב" }
 ];
-app.get('/points', (req, res) => {
-    res.status(200).json(points);
-});
 // הוספת נקודות שמירה התחלתית לבסיס הנתונים
 const sql = 'INSERT INTO points (id, pointName, location) VALUES ?';
 const values = points.map(point => [point.id, point.pointName, point.location]);
@@ -49,6 +45,7 @@ connection.query(sql, [values], (error, results) => {
         console.log('Insert successful:', results);
     }
 });
+
 
 // הוספת נקודת שמירה (CREATE)
 app.post('/points', (req, res) => {
@@ -77,6 +74,7 @@ app.post('/points', (req, res) => {
         }
     });
 });
+
 // הצגת כל נקודות השמירה (READ)
 app.get('/points', (req, res) => {
     const selectVisitQuery = 'SELECT * from points';
@@ -107,6 +105,54 @@ app.patch('/points/:id', (req, res) => {
     });
 });
 
+// מחיקת נקודת שמירה לפי אינדקס (DELETE)
+app.delete('/points/:id', (req, res) => {
+    const deleteQuery = 'DELETE FROM points WHERE id = ?';
+
+    connection.query(deleteQuery, [req.params.id], (err, results) => {
+        if (err) {
+            console.error('Error executing query:', err.message);
+            res.status(400).json("שגיאה במחיקת נקודת השמירה");
+        } else {
+            // עדכון המערך המקומי
+            res.status(200).json("נקודת השמירה נמחקה בהצלחה");
+        }
+    });
+});
+
+// הוספת ביקור (CREATE)
+app.post('/visit', (req, res) => {
+    console.log("Received request to add visit:", req.body);
+    // הוספת הביקור לבסיס הנתונים
+    const insertVisitQuery = 'INSERT INTO visits (time, pointName) VALUES (?, ?)';
+    const visitData =[req.body.visitTime, req.body.pointName];
+
+    connection.query(insertVisitQuery, visitData, (err) => {
+        if (err) {
+            console.error('Error executing query:', err.message);
+            return res.status(400).json("שגיאה בהוספת הביקור");
+        } else {
+
+            console.log("Visit added to local array:", visitData);
+            return res.status(200).json("הביקור נשמר בהצלחה");
+        }
+    });
+});
+
+app.get('/visits', (req, res) => {
+    const selectVisitQuery = 'SELECT * from visits';
+    connection.query(selectVisitQuery, (err,results,fields) => {
+        if (err) {
+            console.error('Error executing query:', err.message);
+            return res.status(400).json("שגיאה בהוספת הביקור");
+        } else {
+            console.log("Visit loaded from db", results);
+            return res.status(200).json(results);
+        }
+    });
+});
+
+
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Now listening on port http://localhost:${port}`);
 });
